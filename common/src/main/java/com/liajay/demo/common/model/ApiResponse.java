@@ -1,6 +1,8 @@
 package com.liajay.demo.common.model;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.*;
 import com.liajay.demo.common.exception.ErrorCode;
@@ -41,14 +43,16 @@ public sealed abstract class ApiResponse<T> permits ApiResponse.Success, ApiResp
     public final static class Failed<T> extends ApiResponse<T> {
         private final String message;
         private final ErrorCode errorCode;
-
+        private Map<String, Object> context;
         @JsonCreator
         public Failed(
                 @JsonProperty("message") String message,
-                @JsonProperty("errorCode") ErrorCode errorCode
+                @JsonProperty("errorCode") ErrorCode errorCode,
+                @JsonProperty("context") Map<String, Object> context
         ) {
             this.message = message;
             this.errorCode = errorCode;
+            this.context = new HashMap<>(context);
         }
 
         public String getMessage() {
@@ -57,6 +61,15 @@ public sealed abstract class ApiResponse<T> permits ApiResponse.Success, ApiResp
 
         public ErrorCode getErrorCode() {
             return errorCode;
+        }
+
+        public Failed<T> addContext(String key, Object value){
+            context.put(key, value);
+            return this;
+        }
+
+        public Map<String, Object> getContext() {
+            return new HashMap<>(context);
         }
 
         @Override
@@ -70,6 +83,10 @@ public sealed abstract class ApiResponse<T> permits ApiResponse.Success, ApiResp
     }
 
     public static <T> ApiResponse<T> error(String message, ErrorCode errorCode) {
-        return new Failed<>(message, errorCode);
+        return new Failed<>(message, errorCode, null);
+    }
+
+    public static <T> ApiResponse<T> error(String message, ErrorCode errorCode, Map<String, Object> context) {
+        return new Failed<>(message, errorCode, context);
     }
 }

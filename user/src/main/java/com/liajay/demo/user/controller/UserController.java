@@ -3,19 +3,25 @@ package com.liajay.demo.user.controller;
 import com.liajay.demo.common.feign.PermissionClient;
 import com.liajay.demo.common.model.ApiResponse;
 import com.liajay.demo.common.model.dto.RoleCode;
+import com.liajay.demo.user.jwt.JwtToken;
+import com.liajay.demo.user.jwt.JwtUtil;
 import com.liajay.demo.user.model.UserWithPassword;
 import com.liajay.demo.user.model.response.LoginResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
     private final PermissionClient permissionClient;
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public UserController(PermissionClient permissionClient) {
+    public UserController(JwtUtil jwtUtil, PermissionClient permissionClient) {
+        this.jwtUtil = jwtUtil;
         this.permissionClient = permissionClient;
     }
 
@@ -32,7 +38,9 @@ public class UserController {
         if (apiResponse.isSuccess()){
             roleCode = ((ApiResponse.Success<RoleCode>) apiResponse).getData();
         }
-        LoginResponse loginResponse = new LoginResponse();
+        String signedJwt = jwtUtil.encode(1,RoleCode.USER);
+
+        LoginResponse loginResponse = new LoginResponse(1000L ,signedJwt);
         return ApiResponse.success(loginResponse);
     }
 

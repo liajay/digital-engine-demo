@@ -2,13 +2,7 @@ package com.liajay.demo.common.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import javax.management.relation.Role;
-import java.io.IOException;
 import java.util.Objects;
 
 public class RoleCode {
@@ -37,6 +31,14 @@ public class RoleCode {
     @Override
     public int hashCode() {
         return Objects.hashCode(roleCode);
+    }
+
+    public String getRoleName(){
+        return switch (this.roleCode) {
+            case 1 -> "SUPER_ADMIN";
+            case 3 -> "ADMIN";
+            default -> "USER";
+        };
     }
 }
 
