@@ -8,6 +8,9 @@ public class GrantedRole extends RoleCode implements GrantedAuthority {
         super(roleCode);
     }
 
+    public GrantedRole(RoleCode role){
+        super(role.getRoleCode());
+    }
     @Override
     public String getAuthority() {
         return getRoleName();

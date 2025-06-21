@@ -8,7 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @ConfigurationPropertiesScan
-@ComponentScan
+@ComponentScan(value = "com.liajay.demo")
 public class PermissionServiceApplication {
     public static void main(String[] args){
         SpringApplication.run(PermissionServiceApplication.class);

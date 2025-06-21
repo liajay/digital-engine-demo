@@ -9,7 +9,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @ConfigurationPropertiesScan
-@ComponentScan
+@ComponentScan(value = "com.liajay.demo")
 @EnableFeignClients("com.liajay.demo.common.feign")
 public class UserServiceApplication {
     public static void main(String[] args){

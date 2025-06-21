@@ -46,15 +46,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             JwtAuthenticationToken unAuthenticateToken = new JwtAuthenticationToken(token);
 
             try{
-                JwtAuthenticationToken authenticationToken = (JwtAuthenticationToken) authenticationManager.authenticate(
+                JwtAuthenticationToken authenticatedToken = (JwtAuthenticationToken) authenticationManager.authenticate(
                         unAuthenticateToken
                 );
+                SecurityContextHolder.getContext().setAuthentication(authenticatedToken);
             } catch (AuthenticationException e) {
                 throw new JwtVerifyException(null);
             }
 
         }while (false);
-
 
         filterChain.doFilter(request, response);
     }

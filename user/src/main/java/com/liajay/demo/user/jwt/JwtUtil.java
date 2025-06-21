@@ -41,7 +41,6 @@ public class JwtUtil {
     public String encode(@Nonnull JwtToken jwtToken){
         return Jwts.builder()
                 .claim("userId", jwtToken.userId())
-                .claim("role", jwtToken.role_id())
                 .issuer(jwtProperties.issuer())
                 .issuedAt(Date.from(Instant.ofEpochSecond(jwtToken.issuedAt())))
                 .expiration(Date.from(Instant.ofEpochSecond(jwtToken.expires())))
@@ -50,10 +49,9 @@ public class JwtUtil {
     }
 
     @Nonnull
-    public String encode(int userId, @Nonnull RoleCode roleCode){
+    public String encode(long userId){
         return encode(new JwtToken(
                 userId,
-                roleCode,
                 Instant.now(),
                 this.expire
         ));
@@ -61,8 +59,12 @@ public class JwtUtil {
 
     @Nonnull
     public JwtToken parseAndVerify(@Nonnull String token,@Nonnull Instant now) throws JwtException {
-        Jws<Claims> claims = parser.parseSignedClaims(token);
-
+        Jws<Claims> claims = null;
+        try {
+            claims = parser.parseSignedClaims(token);
+        } catch (JwtException e) {
+            throw new JwtVerifyException(null, ErrorCode.USER_TOKEN_INVALID,e.getMessage());
+        }
         Instant expiration = Optional.ofNullable(claims.getPayload().getExpiration()).orElseThrow(
                 () -> new MissingFieldException(null, "exp")
         ).toInstant();
@@ -72,12 +74,9 @@ public class JwtUtil {
 
 
         JwtToken jwtToken =  new JwtToken(
-                Optional.ofNullable(claims.getPayload().get("userId", long.class)).orElseThrow(
+                Optional.ofNullable(claims.getPayload().get("userId", Number.class)).orElseThrow(
                         () -> new MissingFieldException(null, "user_id")
-                ),
-                Optional.ofNullable(claims.getPayload().get("role", int.class)).orElseThrow(
-                        () -> new MissingFieldException(null, "role")
-                ),
+                ).longValue(),
                 issuedAt.getEpochSecond(),
                 expiration.getEpochSecond()
         );
@@ -91,5 +90,7 @@ public class JwtUtil {
         return jwtToken;
     }
 
-
+    public Duration getExpire() {
+        return expire;
+    }
 }

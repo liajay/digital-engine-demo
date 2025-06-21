@@ -10,7 +10,8 @@ public enum ErrorCode {
     USER_NOT_FOUND("10302", "用户不存在"),
     USER_TOKEN_INVALID("10303","用户token失效"),
     USER_AUTHENTICATION_FAILED("10304", "用户认证失败"),
-    USER_PERMISSION_DENIED("10305", "用户权限不足");
+    USER_PERMISSION_DENIED("10305", "用户权限不足"),
+    USERNAME_OR_PASSWORD_BAD("10306", "用户名或密码错误");
     private String code;
     private String message;
 

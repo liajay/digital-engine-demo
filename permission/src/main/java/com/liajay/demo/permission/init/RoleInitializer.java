@@ -22,11 +22,8 @@ public class RoleInitializer implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
         if (roleRepository.count() == 0) {
-            Role superAdmin = new Role(RoleCode.SUPER_ADMIN.getRoleCode(), "super_admin");
-            Role user = new Role(RoleCode.USER.getRoleCode(), "user");
-            Role admin = new Role(RoleCode.ADMIN.getRoleCode(), "admin");
 
-            roleRepository.saveAll(List.of(superAdmin, user, admin));
+            roleRepository.saveAll(List.of(Role.USER(), Role.ADMIN(), Role.SUPER_ADMIN()));
             System.out.println("初始化角色数据完成");
         }
     }
