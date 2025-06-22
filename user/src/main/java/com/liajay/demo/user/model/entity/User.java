@@ -1,5 +1,6 @@
 package com.liajay.demo.user.model.entity;
 
+import com.liajay.demo.common.model.dto.UserInfo;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 @Entity
@@ -26,6 +27,16 @@ public class User {
 
     public User() {
     }
+
+    public UserInfo toUserInfo(){
+        return new UserInfo(
+                getId(),
+                getUsername(),
+                getEmail(),
+                getPhone()
+        );
+    }
+
 
     public String getEmail() {
         return email;

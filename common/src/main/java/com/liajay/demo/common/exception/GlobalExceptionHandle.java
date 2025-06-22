@@ -16,6 +16,7 @@ public class GlobalExceptionHandle {
         return ApiResponse.error(e.getMessage(), e.getErrorCode(), e.getContext());
     }
 
+    //TODO: 改下响应
     @ExceptionHandler(SystemException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody

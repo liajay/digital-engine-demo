@@ -5,9 +5,11 @@ import com.liajay.demo.permission.model.entity.Role;
 import com.liajay.demo.permission.model.entity.UserRole;
 import com.liajay.demo.permission.repository.UserRoleRepository;
 import com.liajay.demo.permission.service.PermissionService;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Service
 public class PermissionServiceImpl implements PermissionService {
     private final UserRoleRepository userRoleRepository;
 
