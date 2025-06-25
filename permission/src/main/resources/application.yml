@@ -1,0 +1,25 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: permission-service
+  config:
+    import:
+      - nacos:user.properties?group=DEFAULT_GROUP
+  nacos:
+    config:
+      server-addr: 10.7.0.1:8848
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 10.7.0.1:8848
+      server-addr: 10.7.0.1:8848
+  jpa:
+    hibernate:
+      ddl-auto: update
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://10.7.0.1:3306/permission?useSSL=false&serverTimezone=UTC
+    username: root
+    password: liajay@0807

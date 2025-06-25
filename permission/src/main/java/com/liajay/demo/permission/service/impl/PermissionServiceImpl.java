@@ -19,6 +19,14 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public void bindDefaultRole(Long userId) {
+        Optional<UserRole> userRoleOptional = userRoleRepository.findByUserId(userId);
+        if (userRoleOptional.isPresent()) {
+            UserRole userRole = userRoleOptional.get();
+            userRole.setRole(Role.USER());
+            userRoleRepository.save(userRole);
+            return;
+        }
+        
         UserRole userRole = new UserRole(Role.USER(), userId);
 
         userRoleRepository.save(userRole);

@@ -1,0 +1,54 @@
+mode:
+  type: Standalone
+  repository:
+    type: JDBC
+
+dataSources:
+  ds0:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: jdbc:mysql://10.7.0.1:3306/demo_0?allowPublicKeyRetrieval=true
+    username: root
+    password: liajay@0807
+  ds1:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: jdbc:mysql://10.7.0.1:3306/demo_1?allowPublicKeyRetrieval=true
+    username: root
+    password: liajay@0807
+  ds2:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: jdbc:mysql://10.7.0.1:3306/demo_2?allowPublicKeyRetrieval=true
+    username: root
+    password: liajay@0807
+
+rules:
+  - !SHARDING
+    defaultDatabaseStrategy:
+      standard:
+        shardingColumn: id
+        shardingAlgorithmName: users_db_sharding
+
+    tables:
+      users:
+        actualDataNodes: ds$->{0..2}.users
+        databaseStrategy:
+          standard:
+            shardingColumn: id
+            shardingAlgorithmName: users_db_sharding
+        keyGenerateStrategy:
+          column: id
+          keyGeneratorName: snowflake
+    shardingAlgorithms:
+      users_db_sharding:
+        type: INLINE
+        props:
+          algorithm-expression: ds$->{id % 3}
+    keyGenerators:
+      snowflake:
+        type: SNOWFLAKE
+
+props:
+  sql-show: true
+  sql-comment: true

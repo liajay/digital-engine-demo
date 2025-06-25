@@ -28,7 +28,7 @@ public class UserController { ;
     @PostMapping("/register")
     public ApiResponse<String> register(@RequestBody User user, HttpServletRequest request){
         logProducerService.sendOperationLog(new UserOperationLog.Register(
-                user.getId(),
+                0,
                 request.getRemoteAddr(),
                 user.toUserInfo()
         ));
@@ -40,13 +40,14 @@ public class UserController { ;
 
     @PostMapping("/login")
     public ApiResponse<LoginResponse> login(@RequestBody User user, HttpServletRequest request){
+        LoginResponse response = userService.login(user);
 
         logProducerService.sendOperationLog(new UserOperationLog.Login(
-                user.getId(),
+                response.getUserId(),
                 request.getRemoteAddr()
         ));
 
-        return ApiResponse.success(userService.login(user));
+        return ApiResponse.success(response);
 
     }
 
@@ -56,11 +57,11 @@ public class UserController { ;
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<UpdateUserInfoResponse> updateUserInfo(@RequestBody UserInfo userInfo, HttpServletRequest request){
-        UpdateUserInfoResponse response = userService.updateUserInfo(userInfo);
+    public ApiResponse<UpdateUserInfoResponse> updateUserInfo(@PathVariable(name = "id") long id,@RequestBody UserInfo userInfo, HttpServletRequest request){
+        UpdateUserInfoResponse response = userService.updateUserInfo(new UserInfo(id, userInfo.username(),userInfo.email(), userInfo.phone()));
 
         logProducerService.sendOperationLog(new UserOperationLog.UpdateUser(
-                userInfo.id(),
+                response.getOldUserInfo().id(),
                 request.getRemoteAddr(),
                 userInfo,
                 response.getOldUserInfo()
@@ -69,7 +70,7 @@ public class UserController { ;
         return ApiResponse.success(response);
     }
 
-    @PostMapping("/reset-password/{id}")
+    @PutMapping("/reset-password/{id}")
     public ApiResponse<String> updateUserPassword(@PathVariable(name = "id") long resetUserId ,@RequestBody String password){
         userService.resetPassword(password, resetUserId);
         return ApiResponse.success("successes");

@@ -7,17 +7,9 @@ import com.liajay.demo.user.model.entity.User;
 import jakarta.annotation.Nonnull;
 
 public class LoginException extends BizException {
-    private long userId;
-//    public LoginException(@Nonnull ErrorCode errorCode) {
-//        super(errorCode, "登录失败");
-//    }
 
-    public LoginException(@Nonnull ErrorCode errorCode, long userId) {
+    public LoginException(@Nonnull ErrorCode errorCode) {
         super(errorCode, "登录失败");
-        this.userId = userId;
     }
 
-    public long getUserId() {
-        return userId;
-    }
 }

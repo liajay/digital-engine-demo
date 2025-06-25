@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RocketMQMessageListener(
+        nameServer = "${rocketmq.nameserver}",
         topic = "${rocketmq.logging.topic}",
         consumerGroup = "log-consumer-group"
 )

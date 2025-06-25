@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: user-service
+  config:
+    import:
+      - nacos:user.properties?group=DEFAULT_GROUP
+  nacos:
+    config:
+      server-addr: 10.7.0.1:8848
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 10.7.0.1:8848
+      server-addr: 10.7.0.1:8848
+
+  datasource:
+    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
+    url: jdbc:shardingsphere:classpath:sharding-rules.yml
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
+
+logging:
+  level:
+    com.liajay.demo.common.feign: DEBUG
+
+rocketmq:
+  name-server: localhost:9876
+  producer:
+    group: user-service-group
+  logging:
+    topic: USER_LOG_TOPIC
+
+jwt:
+  issuer: liuliangjie
+  expiration: 3600
+  secretKey: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAK7LOTNXUS1sT/SLPJSNudq1SSR59kz8
+

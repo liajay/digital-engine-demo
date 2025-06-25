@@ -7,12 +7,12 @@ import com.liajay.demo.common.feign.PermissionClient;
 import com.liajay.demo.common.model.ApiResponse;
 import com.liajay.demo.common.model.dto.RoleCode;
 import com.liajay.demo.user.exception.LoginException;
+import com.liajay.demo.user.exception.PermissionDeniedException;
 import com.liajay.demo.user.exception.RegisterException;
 import com.liajay.demo.user.jwt.JwtToken;
 import com.liajay.demo.user.jwt.JwtUtil;
 import com.liajay.demo.common.model.dto.UserInfo;
 import com.liajay.demo.user.model.UserWithPassword;
-import com.liajay.demo.user.model.entity.GrantedRole;
 import com.liajay.demo.user.model.entity.User;
 import com.liajay.demo.user.model.response.LoginResponse;
 import com.liajay.demo.user.model.response.UpdateUserInfoResponse;
@@ -30,7 +30,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.management.relation.Role;
 import java.util.Optional;
 
 @Service
@@ -59,15 +58,19 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void register(User user) {
-        Optional<User> userOpt = userRepository.findById(user.getId());
+        Optional<User> userOpt = userRepository.findByUsername(user.getUsername());
         if (userOpt.isPresent()){
             throw new RegisterException(ErrorCode.USERNAME_ALREADY_EXISTS);
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        permissionClient.bindDefaultRole(user.getId());
+
 
         userRepository.save(user);
+        user = userRepository.findByUsername(user.getUsername()).get();
+
+        permissionClient.bindDefaultRole(user.getId());
+
     }
 
     @Override
@@ -91,9 +94,9 @@ public class UserServiceImpl implements UserService {
                     jwtUtil.encode(userPwd.getId())
             );
         } catch (BadCredentialsException e) {
-            throw new LoginException(ErrorCode.USERNAME_OR_PASSWORD_BAD, user.getId());
+            throw new LoginException(ErrorCode.USERNAME_OR_PASSWORD_BAD);
         } catch (UsernameNotFoundException e) {
-            throw new LoginException(ErrorCode.USER_NOT_FOUND, user.getId());
+            throw new LoginException(ErrorCode.USER_NOT_FOUND);
         }
     }
 
@@ -105,7 +108,7 @@ public class UserServiceImpl implements UserService {
 
         allowToUpdate(jwtToken.userId(), userId);
 
-        User user = userRepository.findById(jwtToken.userId()).get();
+        User user = userRepository.findById(userId).get();
 
         return new UserInfo(
                 user.getId(),
@@ -121,7 +124,7 @@ public class UserServiceImpl implements UserService {
 
         allowToUpdate(jwtToken.userId(), userInfo.id());
 
-        User user = userRepository.findById(jwtToken.userId()).get();
+        User user = userRepository.findById(userInfo.id()).get();
 
         UpdateUserInfoResponse ret = new UpdateUserInfoResponse(user.toUserInfo());
 
@@ -148,7 +151,7 @@ public class UserServiceImpl implements UserService {
 
         allowToUpdate(jwtToken.userId(), targetId);
 
-        User user = userRepository.findById(jwtToken.userId()).get();
+        User user = userRepository.findById(targetId).get();
 
         user.setPassword(passwordEncoder.encode(password));
 
@@ -175,15 +178,25 @@ public class UserServiceImpl implements UserService {
             return true;
         }
 
+        if (isNotExist(selfUserId) || isNotExist(targetUserId)){
+            throw new BizException(ErrorCode.USER_NOT_FOUND,"用户不存在");
+        }
+
         RoleCode self = getRoleCode(selfUserId);
 
         if (self.equals(RoleCode.SUPER_ADMIN)) return true;
 
         RoleCode target = getRoleCode(targetUserId);
 
-        if (self.equals(RoleCode.ADMIN)) return target.equals(RoleCode.USER);
+        if (self.equals(RoleCode.ADMIN) && target.equals(RoleCode.USER)) return true;
 
-        return false;
+        throw new PermissionDeniedException();
 
+    }
+
+    private boolean isNotExist(long userId){
+        Optional<User> optionalUser = userRepository.findById(userId);
+
+        return optionalUser.isEmpty();
     }
 }

@@ -2,13 +2,21 @@ package com.liajay.demo.user.model.entity;
 
 import com.liajay.demo.common.model.dto.UserInfo;
 import jakarta.persistence.*;
+import org.apache.shardingsphere.infra.algorithm.keygen.snowflake.SnowflakeKeyGenerateAlgorithm;
+import org.hibernate.id.IdentifierGenerator;
+import org.springframework.util.IdGenerator;
+
 import java.time.LocalDateTime;
+import java.util.Properties;
+import java.util.Random;
+
 @Entity
 @Table(name = "users")
 public class User {
+    private static final Random generator = new Random();
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(nullable = false)
     private String username;
@@ -28,9 +36,22 @@ public class User {
     public User() {
     }
 
+
+    //TODO:修改id生成
+    @PrePersist
+    protected void generateId(){
+        if (id == null || id == 0){
+            id = generator.nextLong(1,1000000L);
+        }
+
+        if (this.gmt_create == null){
+            this.gmt_create = LocalDateTime.now();
+        }
+
+    }
     public UserInfo toUserInfo(){
         return new UserInfo(
-                getId(),
+                getId() == null ? 0 : getId(),
                 getUsername(),
                 getEmail(),
                 getPhone()
@@ -54,11 +75,11 @@ public class User {
         this.gmt_create = gmt_create;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
